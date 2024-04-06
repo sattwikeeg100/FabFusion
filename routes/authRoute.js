@@ -6,10 +6,10 @@ const router = express.Router();
 router.post('/register', createUser);
 router.post('/login', loginUser);
 router.get('/all-users', getAllUsers);
-router.delete('/:id', deleteaUser);
 router.put('/edit-user', authMiddleware, updateaUser);
+router.delete('/:id', deleteaUser);
 router.get('/:id', authMiddleware, isAdmin, getaUser);
-router.put('/block-user/:id', blockUser);
+router.put('/block-user/:id', authMiddleware, isAdmin, blockUser);
 router.put('/unblock-user/:id', authMiddleware, isAdmin, unblockUser);
 
 module.exports = router;
