@@ -42,10 +42,10 @@ const loginUser = asyncHandler(async (req, res) => {
 // Update a user
 
 const updateaUser = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { _id } = req.user;
     try{
         const updatedUser = await User.findByIdAndUpdate(
-            id, 
+            _id, 
             {
                 firstname: req?.body?.firstname,
                 lastname: req?.body?.lastname,
@@ -80,9 +80,10 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // Get a Single User
 
 const getaUser = asyncHandler( async (req, res) => {
-    const {id} = req.params;
+    //const {id} = req.params;  // const { id } = req.params; is equivalent to const id = req.params.id
+    const { _id } = req.user;
     try{
-        const getaUser = await User.findById(id);
+        const getaUser = await User.findById(_id);
         res.json({
             getaUser,
         });
