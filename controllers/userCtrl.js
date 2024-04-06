@@ -81,9 +81,9 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 const getaUser = asyncHandler( async (req, res) => {
     //const {id} = req.params;  // const { id } = req.params; is equivalent to const id = req.params.id
-    const { _id } = req.user;
+    const { id } = req.params;
     try{
-        const getaUser = await User.findById(_id);
+        const getaUser = await User.findById(id);
         res.json({
             getaUser,
         });
@@ -106,4 +106,45 @@ const deleteaUser = asyncHandler( async (req, res) => {
     }
 });
 
-module.exports = { createUser, loginUser, getAllUsers, getaUser, deleteaUser, updateaUser };
+// Block a User
+
+const blockUser = asyncHandler( async (req, res) => {
+    const { id } = req.params;
+    try{
+        const blocked = await User.findByIdAndUpdate(id, {
+                isBlocked:true,
+            },
+            {
+                new:true,
+            }
+        );
+        res.json({
+            message: "User blocked successfully",
+        });
+    }catch(error){
+        throw new Error(error);
+    }
+});
+
+// Unblock a User
+
+const unblockUser = asyncHandler( async (req, res) => {
+    const {id} = req.params;
+    try{
+        const unblocked = await User.findByIdAndUpdate(id, {
+                isBlocked:false,
+            },
+            {
+                new:true,
+            }
+        );
+        res.json({
+            message: "User unblocked successfully",
+        });
+    }catch(error){
+        throw new Error(error);
+    }
+});
+
+
+module.exports = { createUser, loginUser, getAllUsers, getaUser, deleteaUser, updateaUser, blockUser, unblockUser };
