@@ -65,9 +65,19 @@ const getaProduct = asyncHandler(async (req, res) => {
 // Get all Products
 
 const getAllProducts = asyncHandler(async (req, res) => {
+
+    // Filtering Products
     try{
-        const getAllProducts = await Product.find();
-        res.json(getAllProducts);
+        const queryObj = { ...req.query };
+        const excludeFields = ['page', 'sort', 'limit', 'fields'];
+        excludeFields.forEach((el) => delete queryObj[el]);
+
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+        
+        const query = Product.find(JSON.parse(queryStr));
+        const products = await query;
+        res.json(products);
     } catch(error) {
         throw new Error(error);
     }
