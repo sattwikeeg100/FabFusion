@@ -46,16 +46,16 @@ const loginUser = asyncHandler(async (req, res) => {
         });
 
         //console.log(res);
-        /* res.json({
+        res.json({
             _id: findUser?._id,
             firstname: findUser?.firstname,
             lastname: findUser?.lastname,
             email: findUser?.email,
             mobile: findUser?.mobile,
             token: generateToken(findUser?._id),
-            refreshtoken: refreshtoken
-        }); */
-        res.json(updateUser);
+            refreshToken: refreshToken
+        });
+        //res.json(updateUser);
     } else {
         throw new Error("Invalid credentials");
     }
