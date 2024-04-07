@@ -1,4 +1,5 @@
 const { generateToken } = require('../config/jwttoken');
+const { generateRefreshToken } = require('../config/refreshtoken');
 const User=require('../models/userModel');
 const asyncHandler=require('express-async-handler');
 const validateMongodbid = require('../utils/validateMongodbid');
@@ -27,18 +28,54 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const findUser = await User.findOne({ email });
     if(findUser && await findUser.isPasswordMatched(password)){
-        res.json({
+        const refreshToken = await generateRefreshToken(findUser?._id);
+        console.log(refreshToken)
+        // Store the refresh token in the database
+        const updateUser = await User.findByIdAndUpdate(findUser?._id, {
+                refreshToken: refreshToken,
+            },
+            {
+                new: true
+            }
+        );
+
+        // Storing the refresh token in the cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly:true,
+            maxAge: 72*60*60*1000, // expiry in 1 day
+        });
+
+        //console.log(res);
+        /* res.json({
             _id: findUser?._id,
             firstname: findUser?.firstname,
             lastname: findUser?.lastname,
             email: findUser?.email,
             mobile: findUser?.mobile,
-            token: generateToken(findUser?._id)
-        });
+            token: generateToken(findUser?._id),
+            refreshtoken: refreshtoken
+        }); */
+        res.json(updateUser);
     } else {
         throw new Error("Invalid credentials");
     }
 })
+
+
+// handle refresh token
+
+const handleRefreshToken = asyncHandler(async (req, res) =>{
+    const cookies = req.cookies;
+    console.log(cookies);
+
+    if(!cookies?.refreshToken)
+        throw new Error('Do Refresh Token in Cookies');
+    const refreshToken = cookies.refreshToken;
+    console.log(refreshToken);
+    const user= await User.findOne({ refreshToken });
+    res.json(user);
+});
+
 
 // Update a user
 
@@ -63,7 +100,7 @@ const updateaUser = asyncHandler(async (req, res) => {
     catch(error) {
         throw new Error(error);
     }
-})
+});
 
 
 
@@ -153,4 +190,13 @@ const unblockUser = asyncHandler( async (req, res) => {
 });
 
 
-module.exports = { createUser, loginUser, getAllUsers, getaUser, deleteaUser, updateaUser, blockUser, unblockUser };
+module.exports = { createUser, 
+    loginUser, 
+    getAllUsers, 
+    getaUser, 
+    deleteaUser, 
+    updateaUser, 
+    blockUser, 
+    unblockUser, 
+    handleRefreshToken 
+};
