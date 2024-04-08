@@ -1,25 +1,25 @@
-const PCategory = require("../models/prodCategoryModel.js");
+const Category = require("../models/blogCategoryModel");
 const asyncHandler = require("express-async-handler");
-const validateMongodbid = require("../utils/validateMongodbid");
+const validateMongoDbId = require("../utils/validateMongodbid")
 
-// Create a new category
+// Create a new blog category
 
 const createCategory = asyncHandler(async (req, res) => {
   try {
-    const newCategory = await PCategory.create(req.body);
+    const newCategory = await Category.create(req.body);
     res.json(newCategory);
   } catch (error) {
     throw new Error(error);
   }
 });
 
-// Update a categrory
+// Update a category
 
 const updateCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongodbid(id);
+  validateMongoDbId(id);
   try {
-    const updatedCategory = await PCategory.findByIdAndUpdate(id, req.body, {
+    const updatedCategory = await Category.findByIdAndUpdate(id, req.body, {
       new: true,
     });
     res.json(updatedCategory);
@@ -32,33 +32,33 @@ const updateCategory = asyncHandler(async (req, res) => {
 
 const deleteCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongodbid(id);
+  validateMongoDbId(id);
   try {
-    const deletedCategory = await PCategory.findByIdAndDelete(id);
+    const deletedCategory = await Category.findByIdAndDelete(id);
     res.json(deletedCategory);
   } catch (error) {
     throw new Error(error);
   }
 });
 
-// Get a Category
+// Get a category
 
 const getCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  validateMongodbid(id);
+  validateMongoDbId(id);
   try {
-    const getaCategory = await PCategory.findById(id);
+    const getaCategory = await Category.findById(id);
     res.json(getaCategory);
   } catch (error) {
     throw new Error(error);
   }
 });
 
-// Get All Categories
+// Get all Category
 
 const getallCategory = asyncHandler(async (req, res) => {
   try {
-    const getallCategory = await PCategory.find();
+    const getallCategory = await Category.find();
     res.json(getallCategory);
   } catch (error) {
     throw new Error(error);
