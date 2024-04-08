@@ -225,6 +225,28 @@ const unblockUser = asyncHandler( async (req, res) => {
     }
 });
 
+// Update password
+
+const updatePassword = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { password } = req.body;
+    console.log(_id)
+    validateMongodbid(_id);
+    const user = await User.findById(_id);
+    if (password) {
+    user.password = password;
+    const updatedPassword = await user.save();
+    res.json(updatedPassword);
+} else {
+    res.json(user);
+}
+});
+
+// Forgot Password Token generation
+
+
+
+
 
 module.exports = { createUser, 
     loginUser, 
@@ -235,5 +257,6 @@ module.exports = { createUser,
     blockUser, 
     unblockUser, 
     handleRefreshToken,
-    logout 
+    logout,
+    updatePassword 
 };
