@@ -21,7 +21,8 @@ const { createUser,
     applyCoupon,
     createOrder,
     getOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    getAllOrders
 } = require("../controllers/userCtrl");
 const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
 const router = express.Router();
@@ -47,6 +48,7 @@ router.put('/save-address', authMiddleware, saveAddress);
 router.delete('/empty-cart', authMiddleware, emptyCart);
 router.delete('/:id', deleteaUser);
 // admin routes
+router.get("/getallorders", authMiddleware, isAdmin, getAllOrders);
 router.get('/:id', authMiddleware, isAdmin, getaUser);
 router.put('/order/update-order/:id', authMiddleware, isAdmin, updateOrderStatus);
 router.put('/block-user/:id', authMiddleware, isAdmin, blockUser);
