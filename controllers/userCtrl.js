@@ -173,6 +173,27 @@ const updateaUser = asyncHandler(async (req, res) => {
     }
 });
 
+// Save User Address
+
+const saveAddress = asyncHandler(async (req, res, next) => {
+    const { _id } = req.user;
+    validateMongodbid(_id);
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            _id,
+            {
+            address: req?.body?.address,
+            },
+            {
+            new: true,
+            }
+        );
+        res.json(updatedUser);
+    } catch (error) {
+        throw new Error(error);
+    }
+});
 
 
 // Get all Users
@@ -346,5 +367,6 @@ module.exports = { createUser,
     forgotPasswordToken,
     resetPassword,
     loginAdmin,
-    getWishlist 
+    getWishlist,
+    saveAddress 
 };
