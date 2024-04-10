@@ -12,7 +12,8 @@ const { createUser,
     updatePassword,
     forgotPasswordToken,
     resetPassword,
-    loginAdmin
+    loginAdmin,
+    getWishlist
 } = require("../controllers/userCtrl");
 const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
 const router = express.Router();
@@ -25,6 +26,7 @@ router.post('/login', loginUser);
 router.post('/admin-login', loginAdmin);
 router.get('/refresh', handleRefreshToken);
 router.get('/logout', logout);
+router.get("/wishlist", authMiddleware, getWishlist);
 router.get('/all-users', getAllUsers);
 router.put('/edit-user', authMiddleware, updateaUser);
 router.delete('/:id', deleteaUser);
