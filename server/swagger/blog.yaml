@@ -1,12 +1,5 @@
-openapi: 3.0.0
-info:
-  title: Blog API
-  description: API for managing blogs, including creating, updating, deleting, and liking/disliking blogs.
-  version: 1.0.0
-servers:
-  - url: http://localhost:8000/api/blog
 paths:
-  /:
+  /blog/:
     post:
       summary: Create a new blog
       operationId: createBlog
@@ -33,29 +26,29 @@ paths:
                 - title
                 - content
       responses:
-        '201':
+        "201":
           description: Blog created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Blog'
-        '400':
+                $ref: "#/components/schemas/Blog"
+        "400":
           description: Bad request
 
     get:
       summary: Get all blogs
       operationId: getAllBlogs
       responses:
-        '200':
+        "200":
           description: Blogs retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Blog'
+                  $ref: "#/components/schemas/Blog"
 
-  /{id}:
+  /blog/{id}:
     get:
       summary: Get a blog by ID
       operationId: getBlog
@@ -66,13 +59,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Blog retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Blog'
-        '404':
+                $ref: "#/components/schemas/Blog"
+        "404":
           description: Blog not found
 
     put:
@@ -107,13 +100,13 @@ paths:
                 - title
                 - content
       responses:
-        '200':
+        "200":
           description: Blog updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Blog'
-        '404':
+                $ref: "#/components/schemas/Blog"
+        "404":
           description: Blog not found
 
     delete:
@@ -128,12 +121,12 @@ paths:
           schema:
             type: string
       responses:
-        '204':
+        "204":
           description: Blog deleted successfully
-        '404':
+        "404":
           description: Blog not found
 
-  /likes:
+  /blog/likes:
     put:
       summary: Like a blog
       operationId: liketheBlog
@@ -151,16 +144,16 @@ paths:
               required:
                 - blogId
       responses:
-        '200':
+        "200":
           description: Blog liked/disliked successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Blog'
-        '404':
+                $ref: "#/components/schemas/Blog"
+        "404":
           description: Blog not found
 
-  /dislikes:
+  /blog/dislikes:
     put:
       summary: Dislike a blog
       operationId: disliketheBlog
@@ -178,13 +171,13 @@ paths:
               required:
                 - blogId
       responses:
-        '200':
+        "200":
           description: Blog disliked successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Blog'
-        '404':
+                $ref: "#/components/schemas/Blog"
+        "404":
           description: Blog not found
 
 components:

@@ -1,12 +1,5 @@
-openapi: 3.0.0
-info:
-  title: Image Upload API
-  description: API for uploading and deleting images using Cloudinary.
-  version: 1.0.0
-servers:
-  - url: http://localhost:8000/api/upload
 paths:
-  /:
+  /upload/:
     post:
       summary: Upload images
       operationId: uploadImages
@@ -27,7 +20,7 @@ paths:
               required:
                 - images
       responses:
-        '200':
+        "200":
           description: Images uploaded successfully
           content:
             application/json:
@@ -35,10 +28,10 @@ paths:
                 type: array
                 items:
                   type: string
-        '400':
+        "400":
           description: Bad request
 
-  /delete-img/{id}:
+  /upload/delete-img/{id}:
     delete:
       summary: Delete an image
       operationId: deleteImages
@@ -51,7 +44,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Image deleted successfully
           content:
             application/json:
@@ -61,7 +54,7 @@ paths:
                   message:
                     type: string
                     example: Deleted
-        '404':
+        "404":
           description: Image not found
 
 components:

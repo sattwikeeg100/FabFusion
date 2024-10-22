@@ -1,12 +1,5 @@
-openapi: 3.0.0
-info:
-  title: User Authentication API
-  description: API for user authentication, registration, and management.
-  version: 1.0.0
-servers:
-  - url: http://localhost:8000/api/user
 paths:
-  /register:
+  /user/register:
     post:
       summary: Register a new user
       operationId: createUser
@@ -34,12 +27,12 @@ paths:
                 - email
                 - password
       responses:
-        '201':
+        "201":
           description: User created successfully
-        '400':
+        "400":
           description: User already exists
 
-  /login:
+  /user/login:
     post:
       summary: Login a user
       operationId: loginUser
@@ -59,7 +52,7 @@ paths:
                 - email
                 - password
       responses:
-        '200':
+        "200":
           description: User logged in successfully
           content:
             application/json:
@@ -80,10 +73,10 @@ paths:
                     type: string
                   refreshToken:
                     type: string
-        '401':
+        "401":
           description: Invalid credentials
 
-  /admin-login:
+  /user/admin-login:
     post:
       summary: Login an admin user
       operationId: loginAdmin
@@ -103,7 +96,7 @@ paths:
                 - email
                 - password
       responses:
-        '200':
+        "200":
           description: Admin logged in successfully
           content:
             application/json:
@@ -122,10 +115,10 @@ paths:
                     type: string
                   token:
                     type: string
-        '401':
+        "401":
           description: Invalid credentials or not authorized
 
-  /forgot-password-token:
+  /user/forgot-password-token:
     post:
       summary: Generate forgot password token
       operationId: forgotPasswordToken
@@ -142,12 +135,12 @@ paths:
               required:
                 - email
       responses:
-        '200':
+        "200":
           description: Token sent to email
-        '404':
+        "404":
           description: User not found with this email
 
-  /reset-password/{token}:
+  /user/reset-password/{token}:
     put:
       summary: Reset password
       operationId: resetPassword
@@ -169,12 +162,12 @@ paths:
               required:
                 - password
       responses:
-        '200':
+        "200":
           description: Password reset successfully
-        '400':
+        "400":
           description: Token expired or invalid
 
-  /password:
+  /user/password:
     put:
       summary: Update user password
       operationId: updatePassword
@@ -192,15 +185,15 @@ paths:
               required:
                 - password
       responses:
-        '200':
+        "200":
           description: Password updated successfully
 
-  /refresh:
+  /user/refresh:
     get:
       summary: Refresh access token
       operationId: handleRefreshToken
       responses:
-        '200':
+        "200":
           description: Access token refreshed successfully
           content:
             application/json:
@@ -209,28 +202,28 @@ paths:
                 properties:
                   accessToken:
                     type: string
-        '403':
+        "403":
           description: No refresh token in cookies
 
-  /logout:
+  /user/logout:
     get:
       summary: Logout user
       operationId: logout
       responses:
-        '204':
+        "204":
           description: Successfully logged out
 
-  /wishlist:
+  /user/wishlist:
     get:
       summary: Get user wishlist
       operationId: getWishlist
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User wishlist retrieved successfully
 
-  /cart:
+  /user/cart:
     post:
       summary: Create user cart
       operationId: userCart
@@ -257,10 +250,10 @@ paths:
               required:
                 - cart
       responses:
-        '200':
+        "200":
           description: Cart created successfully
 
-  /cart/applycoupon:
+  /user/cart/applycoupon:
     post:
       summary: Apply coupon to cart
       operationId: applyCoupon
@@ -278,12 +271,12 @@ paths:
               required:
                 - coupon
       responses:
-        '200':
+        "200":
           description: Coupon applied successfully
-        '400':
+        "400":
           description: Invalid coupon
 
-  /cart/cash-order:
+  /user/cart/cash-order:
     post:
       summary: Create cash order
       operationId: createOrder
@@ -303,30 +296,30 @@ paths:
               required:
                 - COD
       responses:
-        '200':
+        "200":
           description: Order created successfully
-        '400':
+        "400":
           description: Create cash order failed
 
-  /get-orders:
+  /user/get-orders:
     get:
       summary: Get user orders
       operationId: getOrders
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User orders retrieved successfully
 
-  /all-users:
+  /user/all-users:
     get:
       summary: Get all users
       operationId: getAllUsers
       responses:
-        '200':
+        "200":
           description: All users retrieved successfully
 
-  /{id}:
+  /user/{id}:
     get:
       summary: Get a single user by ID
       operationId: getaUser
@@ -339,9 +332,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User retrieved successfully
-        '404':
+        "404":
           description: User not found
 
     delete:
@@ -356,7 +349,7 @@ paths:
           schema:
             type: string
       responses:
-        '204':
+        "204":
           description: User deleted successfully
 
     put:
@@ -381,10 +374,10 @@ paths:
                 mobile:
                   type: string
       responses:
-        '200':
+        "200":
           description: User updated successfully
 
-  /block-user/{id}:
+  /user/block-user/{id}:
     put:
       summary: Block a user by ID
       operationId: blockUser
@@ -397,10 +390,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User blocked successfully
 
-  /unblock-user/{id}:
+  /user/unblock-user/{id}:
     put:
       summary: Unblock a user by ID
       operationId: unblockUser
@@ -413,10 +406,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User unblocked successfully
 
-  /order/update-order/{id}:
+  /user/order/update-order/{id}:
     put:
       summary: Update order status by ID
       operationId: updateOrderStatus
@@ -440,17 +433,17 @@ paths:
               required:
                 - status
       responses:
-        '200':
+        "200":
           description: Order status updated successfully
 
-  /getallorders:
+  /user/getallorders:
     get:
       summary: Get all orders of all users
       operationId: getAllOrders
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: All orders retrieved successfully
 
 components:

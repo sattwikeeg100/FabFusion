@@ -1,0 +1,1475 @@
+openapi: 3.0.0
+info:
+  title: "FabFusion REST Backend API Docs"
+  version: "1.0.0"
+  description: "A documentation for the backend RESTful APIs of the ecommerce website - FabFusion."
+  contact: 
+    name: "Sattwikee Ghosh"
+    url: "https://sattwikeeghosh.vercel.app/"
+    email: "sattwikeeghosh95@gmail.com"
+servers:
+  - url: http://localhost:8000/api
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+        mobile:
+          type: string
+    Blog:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        likes:
+          type: array
+          items:
+            type: string
+        dislikes:
+          type: array
+          items:
+            type: string
+        numViews:
+          type: integer
+        isLiked:
+          type: boolean
+        isDisliked:
+          type: boolean
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    Coupon:
+      type: object
+      properties:
+        code:
+          type: string
+          example: SUMMER2024
+          description: The unique code for the coupon.
+        discount:
+          type: number
+          format: float
+          example: 20.0
+          description: The discount value of the coupon, represented as a percentage or fixed amount.
+        expirationDate:
+          type: string
+          format: date
+          example: 2024-08-31
+          description: The date when the coupon expires in YYYY-MM-DD format.
+      required:
+        - code
+        - discount
+        - expirationDate
+    Brand:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        quantity:
+          type: integer
+        slug:
+          type: string
+        totalrating:
+          type: number
+        ratings:
+          type: array
+          items:
+            type: object
+            properties:
+              star:
+                type: integer
+              comment:
+                type: string
+              postedBy:
+                type: string
+
+paths:
+  /user/register:
+    post:
+      summary: Register a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                mobile:
+                  type: string
+              required:
+                - firstname
+                - lastname
+                - email
+                - password
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: User already exists
+  /user/login:
+    post:
+      summary: Login a user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  firstname:
+                    type: string
+                  lastname:
+                    type: string
+                  email:
+                    type: string
+                  mobile:
+                    type: string
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+        '401':
+          description: Invalid credentials
+  /user/admin-login:
+    post:
+      summary: Login an admin user
+      operationId: loginAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Admin logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  firstname:
+                    type: string
+                  lastname:
+                    type: string
+                  email:
+                    type: string
+                  mobile:
+                    type: string
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials or not authorized
+  /user/forgot-password-token:
+    post:
+      summary: Generate forgot password token
+      operationId: forgotPasswordToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '200':
+          description: Token sent to email
+        '404':
+          description: User not found with this email
+  /user/reset-password/{token}:
+    put:
+      summary: Reset password
+      operationId: resetPassword
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+              required:
+                - password
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Token expired or invalid
+  /user/password:
+    put:
+      summary: Update user password
+      operationId: updatePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+              required:
+                - password
+      responses:
+        '200':
+          description: Password updated successfully
+  /user/refresh:
+    get:
+      summary: Refresh access token
+      operationId: handleRefreshToken
+      responses:
+        '200':
+          description: Access token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+        '403':
+          description: No refresh token in cookies
+  /user/logout:
+    get:
+      summary: Logout user
+      operationId: logout
+      responses:
+        '204':
+          description: Successfully logged out
+  /user/wishlist:
+    get:
+      summary: Get user wishlist
+      operationId: getWishlist
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User wishlist retrieved successfully
+  /user/cart:
+    post:
+      summary: Create user cart
+      operationId: userCart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      count:
+                        type: integer
+                      color:
+                        type: string
+              required:
+                - cart
+      responses:
+        '200':
+          description: Cart created successfully
+  /user/cart/applycoupon:
+    post:
+      summary: Apply coupon to cart
+      operationId: applyCoupon
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coupon:
+                  type: string
+              required:
+                - coupon
+      responses:
+        '200':
+          description: Coupon applied successfully
+        '400':
+          description: Invalid coupon
+  /user/cart/cash-order:
+    post:
+      summary: Create cash order
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                COD:
+                  type: boolean
+                couponApplied:
+                  type: boolean
+              required:
+                - COD
+      responses:
+        '200':
+          description: Order created successfully
+        '400':
+          description: Create cash order failed
+  /user/get-orders:
+    get:
+      summary: Get user orders
+      operationId: getOrders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User orders retrieved successfully
+  /user/all-users:
+    get:
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: All users retrieved successfully
+  /user/{id}:
+    get:
+      summary: Get a single user by ID
+      operationId: getaUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User retrieved successfully
+        '404':
+          description: User not found
+    delete:
+      summary: Delete a single user by ID
+      operationId: deleteaUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+    put:
+      summary: Update user details
+      operationId: updateaUser
+      security:
+        - bearerAuth: []
+      parameters:  # Add the id parameter here
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                mobile:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully
+  /user/block-user/{id}:
+    put:
+      summary: Block a user by ID
+      operationId: blockUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User blocked successfully
+  /user/unblock-user/{id}:
+    put:
+      summary: Unblock a user by ID
+      operationId: unblockUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User unblocked successfully
+  /user/order/update-order/{id}:
+    put:
+      summary: Update order status by ID
+      operationId: updateOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+              required:
+                - status
+      responses:
+        '200':
+          description: Order status updated successfully
+  /user/getallorders:
+    get:
+      summary: Get all orders of all users
+      operationId: getAllOrders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All orders retrieved successfully
+  /blog/:
+    post:
+      summary: Create a new blog
+      operationId: createBlog
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                author:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - title
+                - content
+      responses:
+        '201':
+          description: Blog created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '400':
+          description: Bad request
+    get:
+      summary: Get all blogs
+      operationId: getAllBlogs
+      responses:
+        '200':
+          description: Blogs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+  /blog/{id}:
+    get:
+      summary: Get a blog by ID
+      operationId: getBlog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Blog retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '404':
+          description: Blog not found
+    put:
+      summary: Update a blog by ID
+      operationId: updateBlog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                author:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - title
+                - content
+      responses:
+        '200':
+          description: Blog updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '404':
+          description: Blog not found
+    delete:
+      summary: Delete a blog by ID
+      operationId: deleteBlog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Blog deleted successfully
+        '404':
+          description: Blog not found
+  /blog/likes:
+    put:
+      summary: Like a blog
+      operationId: liketheBlog
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                blogId:
+                  type: string
+              required:
+                - blogId
+      responses:
+        '200':
+          description: Blog liked/disliked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '404':
+          description: Blog not found
+  /blog/dislikes:
+    put:
+      summary: Dislike a blog
+      operationId: disliketheBlog
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                blogId:
+                  type: string
+              required:
+                - blogId
+      responses:
+        '200':
+          description: Blog disliked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        '404':
+          description: Blog not found
+  /blogCategory/:
+    post:
+      summary: Create a new blog category
+      operationId: createCategory
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request
+    get:
+      summary: Get all blog categories
+      operationId: getAllCategories
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /blogCategory/{id}:
+    get:
+      summary: Get a blog category by ID
+      operationId: getCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+    put:
+      summary: Update a blog category by ID
+      operationId: updateCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+    delete:
+      summary: Delete a blog category by ID
+      operationId: deleteCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Category deleted successfully
+        '404':
+          description: Category not found
+  /brand/:
+    post:
+      summary: Create a new brand
+      operationId: createBrand
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Brand created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad request
+    get:
+      summary: Get all brands
+      operationId: getAllBrands
+      responses:
+        '200':
+          description: Brands retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+  /brand/{id}:
+    get:
+      summary: Get a brand by ID
+      operationId: getBrand
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Brand retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '404':
+          description: Brand not found
+    put:
+      summary: Update a brand by ID
+      operationId: updateBrand
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: Brand updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '404':
+          description: Brand not found
+    delete:
+      summary: Delete a brand by ID
+      operationId: deleteBrand
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Brand deleted successfully
+        '404':
+          description: Brand not found
+  /coupon/:
+    post:
+      summary: Create a new coupon
+      operationId: createCoupon
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: SUMMER2024
+                discount:
+                  type: number
+                  format: float
+                  example: 20
+                expirationDate:
+                  type: string
+                  format: date
+                  example: '2024-08-31T00:00:00.000Z'
+              required:
+                - code
+                - discount
+                - expirationDate
+      responses:
+        '201':
+          description: Coupon created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  discount:
+                    type: number
+                  expirationDate:
+                    type: string
+        '400':
+          description: Bad request
+    get:
+      summary: Get all coupons
+      operationId: getAllCoupons
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved all coupons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    discount:
+                      type: number
+                    expirationDate:
+                      type: string
+        '401':
+          description: Unauthorized
+  /coupon/{id}:
+    put:
+      summary: Update a coupon
+      operationId: updateCoupon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: SUMMER2024
+                discount:
+                  type: number
+                  format: float
+                  example: 20
+                expirationDate:
+                  type: string
+                  format: date
+                  example: '2024-08-31T00:00:00.000Z'
+      responses:
+        '200':
+          description: Coupon updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  discount:
+                    type: number
+                  expirationDate:
+                    type: string
+        '400':
+          description: Bad request
+        '404':
+          description: Coupon not found
+    delete:
+      summary: Delete a coupon
+      operationId: deleteCoupon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Coupon deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Coupon deleted successfully
+        '404':
+          description: Coupon not found
+  /prodcategory/:
+    post:
+      summary: Create a new category
+      operationId: createProductCategory
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request
+    get:
+      summary: Get all categories
+      operationId: getAllProductCategories
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /prodcategory/{id}:
+    get:
+      summary: Get a category by ID
+      operationId: getProductCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+    put:
+      summary: Update a category by ID
+      operationId: updateProductCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+    delete:
+      summary: Delete a category by ID
+      operationId: deleteProductCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Category deleted successfully
+        '404':
+          description: Category not found
+  /product/:
+    post:
+      summary: Create a new product
+      operationId: createProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                category:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                quantity:
+                  type: integer
+              required:
+                - title
+                - price
+                - category
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad request
+    get:
+      summary: Get all products
+      operationId: getAllProducts
+      parameters:
+        - name: sort
+          in: query
+          description: Sort products (e.g., price, -createdAt)
+          required: false
+          schema:
+            type: string
+        - name: fields
+          in: query
+          description: Comma-separated fields to include in response (e.g., title,price)
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of products per page
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /product/wishlist:
+    put:
+      summary: Add or remove product from wishlist
+      operationId: addToWishlist
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prodId:
+                  type: string
+              required:
+                - prodId
+      responses:
+        '200':
+          description: User wishlist updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+  /product/rating:
+    put:
+      summary: Rate a product
+      operationId: rating
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                star:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                prodId:
+                  type: string
+              required:
+                - star
+                - prodId
+      responses:
+        '200':
+          description: Product rated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad request
+  /product/{id}:
+    get:
+      summary: Get a product by ID
+      operationId: getaProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+    put:
+      summary: Update a product by ID
+      operationId: updateProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                category:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                quantity:
+                  type: integer
+              required:
+                - title
+                - price
+                - category
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+    delete:
+      summary: Delete a product by ID
+      operationId: deleteProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Product deleted successfully
+        '404':
+          description: Product not found
+  /upload/:
+    post:
+      summary: Upload images
+      operationId: uploadImages
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - images
+      responses:
+        '200':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Bad request
+  /upload/delete-img/{id}:
+    delete:
+      summary: Delete an image
+      operationId: deleteImages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Image deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Deleted
+        '404':
+          description: Image not found
