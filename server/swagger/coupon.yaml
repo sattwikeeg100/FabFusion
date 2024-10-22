@@ -1,0 +1,157 @@
+openapi: 3.0.0
+info:
+  title: Coupon API
+  description: API for managing coupons, including creation, retrieval, updating, and deletion.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/coupons
+paths:
+  /:
+    post:
+      summary: Create a new coupon
+      operationId: createCoupon
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: SUMMER2024
+                discount:
+                  type: number
+                  format: float
+                  example: 20.0
+                expirationDate:
+                  type: string
+                  format: date
+                  example: 2024-08-31
+              required:
+                - code
+                - discount
+                - expirationDate
+      responses:
+        '201':
+          description: Coupon created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  discount:
+                    type: number
+                  expirationDate:
+                    type: string
+        '400':
+          description: Bad request
+
+    get:
+      summary: Get all coupons
+      operationId: getAllCoupons
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved all coupons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    discount:
+                      type: number
+                    expirationDate:
+                      type: string
+        '401':
+          description: Unauthorized
+
+  /{id}:
+    put:
+      summary: Update a coupon
+      operationId: updateCoupon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: SUMMER2024
+                discount:
+                  type: number
+                  format: float
+                  example: 20.0
+                expirationDate:
+                  type: string
+                  format: date
+                  example: 2024-08-31
+      responses:
+        '200':
+          description: Coupon updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  discount:
+                    type: number
+                  expirationDate:
+                    type: string
+        '404':
+          description: Coupon not found
+        '400':
+          description: Bad request
+
+    delete:
+      summary: Delete a coupon
+      operationId: deleteCoupon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Coupon deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Coupon deleted successfully
+        '404':
+          description: Coupon not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

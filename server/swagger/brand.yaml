@@ -1,0 +1,137 @@
+openapi: 3.0.0
+info:
+  title: Brand API
+  description: API for managing brands, including creating, updating, deleting, and retrieving brands.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/brand
+paths:
+  /:
+    post:
+      summary: Create a new brand
+      operationId: createBrand
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Brand created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '400':
+          description: Bad request
+
+    get:
+      summary: Get all brands
+      operationId: getAllBrands
+      responses:
+        '200':
+          description: Brands retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+
+  /{id}:
+    get:
+      summary: Get a brand by ID
+      operationId: getBrand
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Brand retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '404':
+          description: Brand not found
+
+    put:
+      summary: Update a brand by ID
+      operationId: updateBrand
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: Brand updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '404':
+          description: Brand not found
+
+    delete:
+      summary: Delete a brand by ID
+      operationId: deleteBrand
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Brand deleted successfully
+        '404':
+          description: Brand not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Brand:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string

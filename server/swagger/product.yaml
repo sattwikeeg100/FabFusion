@@ -1,0 +1,289 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  description: API for managing products, including creation, update, deletion, and wishlist functionality.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/product
+paths:
+  /:
+    post:
+      summary: Create a new product
+      operationId: createProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                category:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                quantity:
+                  type: integer
+              required:
+                - title
+                - price
+                - category
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad request
+
+    get:
+      summary: Get all products
+      operationId: getAllProducts
+      parameters:
+        - name: sort
+          in: query
+          description: Sort products (e.g., price, -createdAt)
+          required: false
+          schema:
+            type: string
+        - name: fields
+          in: query
+          description: Comma-separated fields to include in response (e.g., title,price)
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of products per page
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /wishlist:
+    put:
+      summary: Add or remove product from wishlist
+      operationId: addToWishlist
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prodId:
+                  type: string
+              required:
+                - prodId
+      responses:
+        '200':
+          description: User wishlist updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+
+  /rating:
+    put:
+      summary: Rate a product
+      operationId: rating
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                star:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                prodId:
+                  type: string
+              required:
+                - star
+                - prodId
+      responses:
+        '200':
+          description: Product rated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad request
+
+  /{id}:
+    get:
+      summary: Get a product by ID
+      operationId: getaProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+    put:
+      summary: Update a product by ID
+      operationId: updateProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                category:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    type: string
+                quantity:
+                  type: integer
+              required:
+                - title
+                - price
+                - category
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+    delete:
+      summary: Delete a product by ID
+      operationId: deleteProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Product deleted successfully
+        '404':
+          description: Product not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        quantity:
+          type: integer
+        slug:
+          type: string
+        totalrating:
+          type: number
+        ratings:
+          type: array
+          items:
+            type: object
+            properties:
+              star:
+                type: integer
+              comment:
+                type: string
+              postedBy:
+                type: string
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+        mobile:
+          type: string
+        wishList:
+          type: array
+          items:
+            type: string
