@@ -1,0 +1,475 @@
+openapi: 3.0.0
+info:
+  title: User Authentication API
+  description: API for user authentication, registration, and management.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/user
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                mobile:
+                  type: string
+              required:
+                - firstname
+                - lastname
+                - email
+                - password
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: User already exists
+
+  /login:
+    post:
+      summary: Login a user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  firstname:
+                    type: string
+                  lastname:
+                    type: string
+                  email:
+                    type: string
+                  mobile:
+                    type: string
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+        '401':
+          description: Invalid credentials
+
+  /admin-login:
+    post:
+      summary: Login an admin user
+      operationId: loginAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Admin logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  firstname:
+                    type: string
+                  lastname:
+                    type: string
+                  email:
+                    type: string
+                  mobile:
+                    type: string
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials or not authorized
+
+  /forgot-password-token:
+    post:
+      summary: Generate forgot password token
+      operationId: forgotPasswordToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '200':
+          description: Token sent to email
+        '404':
+          description: User not found with this email
+
+  /reset-password/{token}:
+    put:
+      summary: Reset password
+      operationId: resetPassword
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+              required:
+                - password
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Token expired or invalid
+
+  /password:
+    put:
+      summary: Update user password
+      operationId: updatePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+              required:
+                - password
+      responses:
+        '200':
+          description: Password updated successfully
+
+  /refresh:
+    get:
+      summary: Refresh access token
+      operationId: handleRefreshToken
+      responses:
+        '200':
+          description: Access token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+        '403':
+          description: No refresh token in cookies
+
+  /logout:
+    get:
+      summary: Logout user
+      operationId: logout
+      responses:
+        '204':
+          description: Successfully logged out
+
+  /wishlist:
+    get:
+      summary: Get user wishlist
+      operationId: getWishlist
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User wishlist retrieved successfully
+
+  /cart:
+    post:
+      summary: Create user cart
+      operationId: userCart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      count:
+                        type: integer
+                      color:
+                        type: string
+              required:
+                - cart
+      responses:
+        '200':
+          description: Cart created successfully
+
+  /cart/applycoupon:
+    post:
+      summary: Apply coupon to cart
+      operationId: applyCoupon
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coupon:
+                  type: string
+              required:
+                - coupon
+      responses:
+        '200':
+          description: Coupon applied successfully
+        '400':
+          description: Invalid coupon
+
+  /cart/cash-order:
+    post:
+      summary: Create cash order
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                COD:
+                  type: boolean
+                couponApplied:
+                  type: boolean
+              required:
+                - COD
+      responses:
+        '200':
+          description: Order created successfully
+        '400':
+          description: Create cash order failed
+
+  /get-orders:
+    get:
+      summary: Get user orders
+      operationId: getOrders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User orders retrieved successfully
+
+  /all-users:
+    get:
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: All users retrieved successfully
+
+  /{id}:
+    get:
+      summary: Get a single user by ID
+      operationId: getaUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User retrieved successfully
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete a single user by ID
+      operationId: deleteaUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+
+    put:
+      summary: Update user details
+      operationId: updateaUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                mobile:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully
+
+  /block-user/{id}:
+    put:
+      summary: Block a user by ID
+      operationId: blockUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User blocked successfully
+
+  /unblock-user/{id}:
+    put:
+      summary: Unblock a user by ID
+      operationId: unblockUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User unblocked successfully
+
+  /order/update-order/{id}:
+    put:
+      summary: Update order status by ID
+      operationId: updateOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+              required:
+                - status
+      responses:
+        '200':
+          description: Order status updated successfully
+
+  /getallorders:
+    get:
+      summary: Get all orders of all users
+      operationId: getAllOrders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All orders retrieved successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+        mobile:
+          type: string

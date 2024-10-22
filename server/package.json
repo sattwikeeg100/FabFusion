@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,9 @@
     "nodemailer": "^6.9.13",
     "sharp": "^0.33.3",
     "slugify": "^1.6.6",
-    "uniqid": "^5.4.0"
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uniqid": "^5.4.0",
+    "yamljs": "^0.3.0"
   }
 }
