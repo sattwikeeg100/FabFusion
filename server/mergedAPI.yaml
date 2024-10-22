@@ -8,7 +8,7 @@ info:
     url: "https://sattwikeeghosh.vercel.app/"
     email: "sattwikeeghosh95@gmail.com"
 servers:
-  - url: http://localhost:8000/api
+  - url: https://fabfusion.onrender.com/api
 components:
   securitySchemes:
     bearerAuth:
